@@ -1,0 +1,5 @@
+text,soft_label
+"I hate women","{'non-sexist':0.1,'sexist':0.9}"
+"Women are amazing","{'non-sexist':0.9,'sexist':0.1}"
+"This is sexist","{'non-sexist':0.2,'sexist':0.8}"
+"Hello world","{'non-sexist':1.0,'sexist':0.0}"
