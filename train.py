@@ -3,7 +3,8 @@
 import torch
 from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
-
+from src.engine.metrics import compute_classification_metrics
+import numpy as np
 from src.config import *
 from src.data.preprocessing import load_data
 from src.data.dataset import SexismDataset
@@ -12,9 +13,8 @@ from src.engine.trainer import train_one_epoch
 from src.engine.evaluator import evaluate
 from src.engine.predictor import predict_probabilities, ensemble_mean
 
-
 # SWITCH MODE
-MODE = "hard"  # "hard" or "soft"
+MODE = "soft"  # "hard" or "soft"
 
 
 def train_single_model(model_name, train_loader, val_loader):
@@ -122,11 +122,28 @@ def main():
 
     # ENSEMBLE
     print("\n===== ENSEMBLE RESULTS =====")
-
+    
     ensemble_preds = ensemble_mean(all_predictions)
 
-    print("Sample ensemble predictions:")
-    print(ensemble_preds[:5])
+    print("\n===== ENSEMBLE EVALUATION =====")
+
+    # convert probabilities → predicted labels
+    ensemble_preds_labels = np.argmax(ensemble_preds, axis=1)
+
+    # true labels (always hard labels for evaluation)
+    true_labels = val_labels
+    if MODE == "soft":
+        true_labels = np.array([int(x[1] > x[0]) for x in val_labels])
+
+    metrics = compute_classification_metrics(true_labels, ensemble_preds_labels)
+
+    print(f"Ensemble Accuracy: {metrics['accuracy']:.4f}")
+    print(f"Ensemble Precision: {metrics['precision']:.4f}")
+    print(f"Ensemble Recall: {metrics['recall']:.4f}")
+    print(f"Ensemble F1: {metrics['f1']:.4f}")
+
+    print("Ensemble Confusion Matrix:")
+    print(metrics["confusion_matrix"])
 
 
 if __name__ == "__main__":
