@@ -1,5 +1,11 @@
 # src/models/transformer.py
 
+import torch
+import torch.nn as nn
+from transformers import AutoModel
+from transformers.utils import logging as transformers_logging
+
+transformers_logging.set_verbosity_error()
 """
 This model will:
     - Load a pretrained transformer (BERT, XLM-R, etc.)
@@ -9,37 +15,41 @@ This model will:
     - Pass through classifier
 """
 
-
-import torch
-import torch.nn as nn
-from transformers import AutoModel
-from transformers.utils import logging as transformers_logging
-
-transformers_logging.set_verbosity_error()
-
-
 class TransformerModel(nn.Module):
     def __init__(self, model_name, num_classes):
         super().__init__()
 
-        # Load pretrained transformer
+        # Load pretrained (Multilingual) transformer
+        # Could be 'bert-base-multilingual-cased', 'xlm-roberta-base'.
+        # Because "Dataset EXIST" contains English and Spanish tweets.
         self.encoder = AutoModel.from_pretrained(model_name)
 
+        # Get hidden size from the encoder config
+        # For BERT-base and XLM-R-base, this is usually 768.
         hidden_size = self.encoder.config.hidden_size
 
         # Regularization
+        # Dropout helps reduce overfitting by randomly disabling some neurons during training.
         self.dropout = nn.Dropout(0.3)
 
         # Classification head
+        # We concatenate mean and max pooled features, so input size is hidden_size * 2.
         self.classifier = nn.Linear(hidden_size * 2, num_classes)
 
     def mean_pooling(self, hidden_states, attention_mask):
+        """
+        This averages token embeddings across the sentence, ignoring padding tokens.
+        The transformer returns one vector per token. Mean pooling combines them into one sentence-level vector.
+        """
         mask = attention_mask.unsqueeze(-1).expand(hidden_states.size()).float()
         summed = torch.sum(hidden_states * mask, dim=1)
         counts = torch.clamp(mask.sum(dim=1), min=1e-9)
         return summed / counts
 
     def max_pooling(self, hidden_states, attention_mask):
+        """
+        This takes the strongest feature value across tokens.
+        """
         mask = attention_mask.unsqueeze(-1).expand(hidden_states.size())
         hidden_states[mask == 0] = -1e9
         return torch.max(hidden_states, dim=1)[0]

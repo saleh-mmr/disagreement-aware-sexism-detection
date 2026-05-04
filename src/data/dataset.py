@@ -1,4 +1,5 @@
 # src/data/dataset.py
+
 import torch
 
 """
@@ -30,6 +31,5 @@ class SexismDataset(torch.utils.data.Dataset):
         return {
             "input_ids": encoding["input_ids"].squeeze(0),
             "attention_mask": encoding["attention_mask"].squeeze(0),
-            # Replace the labels line in __getitem__ with:
             "labels": torch.tensor(label, dtype=torch.float if isinstance(label, list) else torch.long)
         }

@@ -14,7 +14,7 @@ from src.engine.evaluator import evaluate
 from src.engine.predictor import predict_probabilities, ensemble_mean
 
 # SWITCH MODE
-MODE = "hard"  # "hard" or "soft"
+MODE = "soft"  # "hard" or "soft"
 
 
 def train_single_model(model_name, train_loader, val_loader):
