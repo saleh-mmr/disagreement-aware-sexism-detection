@@ -54,6 +54,9 @@ class TransformerModel(nn.Module):
         hidden_states[mask == 0] = -1e9
         return torch.max(hidden_states, dim=1)[0]
 
+    # model uses two views of the tweet:
+    # 1. Mean pooling: captures the overall sentiment by averaging token embeddings.
+    # 2. Max pooling: captures the most salient features by taking the maximum value across
     def forward(self, input_ids, attention_mask):
         outputs = self.encoder(
             input_ids=input_ids,
