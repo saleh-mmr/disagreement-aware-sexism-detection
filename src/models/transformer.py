@@ -36,6 +36,12 @@ class TransformerModel(nn.Module):
         # We concatenate mean and max pooled features, so input size is hidden_size * 2.
         self.classifier = nn.Linear(hidden_size * 2, num_classes)
 
+
+# ******* Important technical note ********
+# hidden_states[mask == 0] = -1e9
+# This line modifies hidden_states in-place
+# in-place modification can sometimes create gradient/autograd issues.
+
     def mean_pooling(self, hidden_states, attention_mask):
         """
         This averages token embeddings across the sentence, ignoring padding tokens.
@@ -53,7 +59,7 @@ class TransformerModel(nn.Module):
         mask = attention_mask.unsqueeze(-1).expand(hidden_states.size())
         hidden_states[mask == 0] = -1e9
         return torch.max(hidden_states, dim=1)[0]
-
+    
     # model uses two views of the tweet:
     # 1. Mean pooling: captures the overall sentiment by averaging token embeddings.
     # 2. Max pooling: captures the most salient features by taking the maximum value across

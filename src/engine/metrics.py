@@ -4,8 +4,15 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def compute_classification_metrics(true_labels, predictions):
     """
-    true_labels: list or numpy array
-    predictions: list or numpy array
+    Accuracy: How many predictions are correct overall.
+    Precision: Of everything the model predicted as sexist, how many were truly sexist.
+    Recall: Of all truly sexist tweets, how many the model detected.
+    F1-score: Balance between precision and recall. This is especially important because sexism detection may involve class imbalance.
+    Confusion matrix Shows:
+        - true non-sexist predicted non-sexist
+        - true non-sexist predicted sexist
+        - true sexist predicted non-sexist
+        - true sexist predicted sexist
     """
     
     acc = accuracy_score(true_labels, predictions)
