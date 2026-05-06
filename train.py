@@ -1,17 +1,17 @@
 # train.py
 
 import torch
-from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
 from src.engine.metrics import compute_classification_metrics
 import numpy as np
 from src.config import *  # Import hyperparameters and paths (LR, DEVICE, EPOCHS, etc.)
-from src.data.preprocessing import load_data
+from src.data.preprocessing import load_annotated_data
 from src.data.dataset import SexismDataset
 from src.models.transformer import TransformerModel
 from src.engine.trainer import train_one_epoch
 from src.engine.evaluator import evaluate
 from src.engine.predictor import predict_probabilities, ensemble_mean
+from src.engine.prediction_writer import write_task1_predictions
 
 # SWITCH MODE: Determines if training uses distribution labels (soft) or single labels (hard)
 MODE = "soft"  # "hard" or "soft"
@@ -24,7 +24,6 @@ def train_single_model(model_name, train_loader, val_loader):
     print(f"\n===== Training model: {model_name} =====")
 
     # Initialize tokenizer and model architecture
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = TransformerModel(model_name, NUM_CLASSES)
     model.to(DEVICE)
 
@@ -70,28 +69,23 @@ def train_single_model(model_name, train_loader, val_loader):
 
     return model
 
-
 def main():
-    print("Loading data...")
-    df = load_data(TRAIN_PATH)
+    print("Loading training data...")
+    train_df = load_annotated_data(TRAIN_PATH)
+
+    print("Loading development data...")
+    dev_df = load_annotated_data(DEV_PATH)
 
     # LABEL SELECTION: Use probability vectors (soft) or discrete integers (hard)
     if MODE == "soft":
-        labels = df["label_vector"].values
+        train_labels = train_df["label_vector"].values
+        dev_labels = dev_df["label_vector"].values
     else:
-        labels = df["hard_label"].values
+        train_labels = train_df["hard_label"].values
+        dev_labels = dev_df["hard_label"].values
 
-    texts = df["text"].values
-
-    # Split data into 90% training and 10% validation
-    # 'stratify' ensures class balance remains consistent across splits
-    train_texts, val_texts, train_labels, val_labels = train_test_split(
-        texts,
-        labels,
-        test_size=0.1,
-        random_state=42,
-        stratify=df["hard_label"].values
-    )
+    train_texts = train_df["text"].values
+    dev_texts = dev_df["text"].values
 
     all_models = []
     all_predictions = []
@@ -108,8 +102,9 @@ def main():
         train_dataset = SexismDataset(
             train_texts, train_labels, tokenizer, MAX_LEN
         )
-        val_dataset = SexismDataset(
-            val_texts, val_labels, tokenizer, MAX_LEN
+
+        dev_dataset = SexismDataset(
+            dev_texts, dev_labels, tokenizer, MAX_LEN
         )
 
         # Create DataLoaders for batch processing
@@ -118,36 +113,52 @@ def main():
             batch_size=BATCH_SIZE,
             shuffle=True
         )
-        val_loader = torch.utils.data.DataLoader(
-            val_dataset,
-            batch_size=BATCH_SIZE
+
+        dev_loader = torch.utils.data.DataLoader(
+            dev_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=False
         )
 
         # Execute training process
-        model = train_single_model(model_name, train_loader, val_loader)
+        model = train_single_model(model_name, train_loader, dev_loader)
         all_models.append(model)
 
-        # Generate probabilities on the validation set for later ensembling
-        preds = predict_probabilities(model, val_loader, DEVICE)
+        # Generate probabilities on the official dev set for later ensembling
+        preds = predict_probabilities(model, dev_loader, DEVICE)
         all_predictions.append(preds)
 
     # ENSEMBLE: Combine predictions from all trained models
-    print("\n===== ENSEMBLE RESULTS =====")
-    
-    # Calculate the mean of probabilities across all models (Soft Voting)
+    print("\n===== ENSEMBLE RESULTS ON DEV SET =====")
+
+    # Calculate the mean of probabilities across all models
     ensemble_preds = ensemble_mean(all_predictions)
+    # after running we should get outputs/predictions/dev_task1_ensemble_predictions.json
+    # this file contains:
+    # "tweet_id": {
+    #     "id_EXIST": "tweet_id",
+    #     "hard_label": "YES",
+    #     "soft_label": {
+    #         "NO": 0.23,
+    #         "YES": 0.77
+    # }}
+    dev_prediction_path = PREDICTION_OUTPUT + "dev_task1_ensemble_predictions.json"
+    write_task1_predictions(
+        ids=dev_df["id_EXIST"].values,
+        probabilities=ensemble_preds,
+        output_path=dev_prediction_path
+    )
 
     print("\n===== ENSEMBLE EVALUATION =====")
 
-    # Convert probability distributions back to class labels (0 or 1)
+    # Convert probability distributions back to class labels
     ensemble_preds_labels = np.argmax(ensemble_preds, axis=1)
 
     # Determine ground truth for evaluation
-    # If soft mode was used, we derive the 'hard' ground truth for standard metrics
-    true_labels = val_labels
     if MODE == "soft":
-        # Assumes index 1 is the positive class
-        true_labels = np.array([int(x[1] > x[0]) for x in val_labels])
+        true_labels = np.array([int(x[1] > x[0]) for x in dev_labels])
+    else:
+        true_labels = dev_labels
 
     # Calculate and display final ensemble performance
     metrics = compute_classification_metrics(true_labels, ensemble_preds_labels)
