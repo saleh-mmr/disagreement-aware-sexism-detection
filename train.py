@@ -56,7 +56,7 @@ def train_single_model(model_name, train_loader, val_loader):
         # Soft-label evaluation metrics
         if MODE == "soft":
             print(f"Soft Cross Entropy: {val_metrics['soft_cross_entropy']:.4f}")
-            print(f"ICM-Soft: {val_metrics['icm_soft']:.4f}")
+            print(f"KL Similarity: {val_metrics['kl_similarity']:.4f}")
         print("Confusion Matrix:")
         print(val_metrics["confusion_matrix"])
 
