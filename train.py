@@ -53,7 +53,10 @@ def train_single_model(model_name, train_loader, val_loader):
         print(f"Val Precision: {val_metrics['precision']:.4f}")
         print(f"Val Recall: {val_metrics['recall']:.4f}")
         print(f"Val F1: {val_metrics['f1']:.4f}")
-
+        # Soft-label evaluation metrics
+        if MODE == "soft":
+            print(f"Soft Cross Entropy: {val_metrics['soft_cross_entropy']:.4f}")
+            print(f"ICM-Soft: {val_metrics['icm_soft']:.4f}")
         print("Confusion Matrix:")
         print(val_metrics["confusion_matrix"])
 
