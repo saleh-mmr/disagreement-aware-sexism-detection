@@ -4,7 +4,7 @@ import torch
 from tqdm import tqdm
 from src.engine.metrics import compute_classification_metrics
 from src.losses.losses import SoftLabelLoss
-from src.engine.soft_metrics import soft_cross_entropy, icm_soft
+from src.engine.soft_metrics import soft_cross_entropy, kl_similarity_score
 import numpy as np
 
 '''
@@ -70,7 +70,7 @@ def evaluate(model, data_loader, device):
         probs_array = np.array(all_probs)
 
         soft_ce = soft_cross_entropy(true_soft_array, probs_array)
-        icm = icm_soft(true_soft_array, probs_array)
+        kl_similarity = kl_similarity_score(true_soft_array, probs_array)
 
         avg_loss = total_loss / len(data_loader)
 
@@ -82,5 +82,5 @@ def evaluate(model, data_loader, device):
         "f1": metrics["f1"],
         "confusion_matrix": metrics["confusion_matrix"],
         "soft_cross_entropy": soft_ce,
-        "icm_soft": icm
-    }
+        "kl_similarity": kl_similarity
+}
