@@ -29,6 +29,3 @@ temp/
 # IDE
 .vscode/
 .idea/
-
-# Dataset
-*.json
