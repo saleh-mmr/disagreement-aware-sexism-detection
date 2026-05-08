@@ -1,3 +1,5 @@
+# src/config.py
+
 import torch
 
 # =====================
@@ -15,6 +17,10 @@ MAX_LEN = 128
 BATCH_SIZE = 8
 EPOCHS = 2
 LR = 2e-5
+# Options:
+# "soft" = train with annotator disagreement probability distributions
+# "hard" = train with majority-vote hard labels
+MODE = "soft"
 
 # =====================
 # TASK

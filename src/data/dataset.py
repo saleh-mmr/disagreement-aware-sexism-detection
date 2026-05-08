@@ -2,14 +2,19 @@
 
 import torch
 
-"""
-Now labels will be vectors, not integers.
-to follow the project rule.
-"""
+
 class SexismDataset(torch.utils.data.Dataset):
+    """
+    PyTorch dataset for EXIST Task 1.
+
+    Supports:
+    - training/dev with labels
+    - test prediction without labels
+    """
+
     def __init__(self, texts, labels, tokenizer, max_len):
         self.texts = list(texts)
-        self.labels = list(labels)  # now list of vectors
+        self.labels = None if labels is None else list(labels)
         self.tokenizer = tokenizer
         self.max_len = max_len
 
@@ -18,7 +23,6 @@ class SexismDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         text = self.texts[idx]
-        label = self.labels[idx]
 
         encoding = self.tokenizer(
             text,
@@ -28,8 +32,17 @@ class SexismDataset(torch.utils.data.Dataset):
             return_tensors="pt"
         )
 
-        return {
+        item = {
             "input_ids": encoding["input_ids"].squeeze(0),
-            "attention_mask": encoding["attention_mask"].squeeze(0),
-            "labels": torch.tensor(label, dtype=torch.float if isinstance(label, list) else torch.long)
+            "attention_mask": encoding["attention_mask"].squeeze(0)
         }
+
+        if self.labels is not None:
+            label = self.labels[idx]
+
+            item["labels"] = torch.tensor(
+                label,
+                dtype=torch.float if isinstance(label, list) else torch.long
+            )
+
+        return item

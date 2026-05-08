@@ -734,7 +734,7 @@ class EXIST_2023_evaluation (object):
             if succes: 
                 icm_soft = ICM_Soft(pred_df, gold_df, MONO_LABEL_TASK, self.TASK_1_HIERARCHY)
                 result_icm_soft_soft=icm_soft.evaluate() ##### ANGEL ADD ####
-                # print("TASK 1 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
+                print("TASK 1 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
             else:
                 print("Not valid format for soft-soft evaluation")                            
                 
@@ -768,7 +768,7 @@ class EXIST_2023_evaluation (object):
             if succes: 
                 icm_soft = ICM_Soft(pred_df, gold_df, MONO_LABEL_TASK, self.TASK_2_HIERARCHY)
                 result_icm_soft_soft=icm_soft.evaluate() ##### ANGEL ADD ####
-                # print("TASK 2 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
+                print("TASK 2 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
             else:
                 print("Not valid format for soft-soft evaluation")                           
             
@@ -802,7 +802,7 @@ class EXIST_2023_evaluation (object):
             if succes: 
                 icm_soft = ICM_Soft(pred_df, gold_df, MULTI_LABEL_TASK, self.TASK_3_HIERARCHY)
                 result_icm_soft_soft=icm_soft.evaluate() ##### ANGEL ADD ####
-                # print("TASK 3 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
+                print("TASK 3 - Result ICM evaluation soft-soft:\t", result_icm_soft_soft) ##### ANGEL ADD ####
             else:
                 print("Not valid format for soft-soft evaluation")
                 
