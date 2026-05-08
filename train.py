@@ -1,5 +1,6 @@
 # train.py
 
+import os
 import torch
 from transformers import AutoTokenizer
 from src.engine.metrics import compute_classification_metrics
@@ -12,10 +13,6 @@ from src.engine.trainer import train_one_epoch
 from src.engine.evaluator import evaluate
 from src.engine.predictor import predict_probabilities, ensemble_mean
 from src.engine.prediction_writer import write_task1_predictions
-
-# SWITCH MODE: Determines if training uses distribution labels (soft) or single labels (hard)
-MODE = "soft"  # "hard" or "soft"
-
 
 def train_single_model(model_name, train_loader, val_loader):
     """
@@ -70,6 +67,9 @@ def train_single_model(model_name, train_loader, val_loader):
     return model
 
 def main():
+    os.makedirs(MODEL_OUTPUT, exist_ok=True)
+    os.makedirs(PREDICTION_OUTPUT, exist_ok=True)
+    
     print("Loading training data...")
     train_df = load_annotated_data(TRAIN_PATH)
 
