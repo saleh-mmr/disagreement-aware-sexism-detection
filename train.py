@@ -1,7 +1,6 @@
 # train.py
 
 import os
-import torch
 from transformers import AutoTokenizer
 from src.engine.metrics import compute_classification_metrics
 import numpy as np
