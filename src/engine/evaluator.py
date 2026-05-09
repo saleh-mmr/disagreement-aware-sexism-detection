@@ -56,11 +56,6 @@ def evaluate(model, data_loader, device):
             all_preds.extend(preds)
             all_true.extend(true)
 
-
-    # Important limitation
-    # The proposal says we should also evaluate soft-label behavior using soft metrics such as cross-entropy or ICM-Soft.
-    # ICM-Soft should be implemented
-
     metrics = compute_classification_metrics(all_true, all_preds)
     soft_ce = None
     icm = None
