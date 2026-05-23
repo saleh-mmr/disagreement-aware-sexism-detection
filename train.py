@@ -12,6 +12,7 @@ from src.engine.trainer import train_one_epoch
 from src.engine.evaluator import evaluate
 from src.engine.predictor import predict_probabilities, ensemble_mean
 from src.engine.prediction_writer import write_task1_predictions
+import torch
 
 def train_single_model(model_name, train_loader, val_loader):
     """
