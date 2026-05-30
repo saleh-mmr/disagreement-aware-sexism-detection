@@ -23,7 +23,7 @@ LR = 2e-5
 MODE = "soft"
 
 # =====================
-# TASK
+# TASK 1
 # =====================
 NUM_CLASSES = 2
 
@@ -31,6 +31,25 @@ NUM_CLASSES = 2
 # index 0 = NO
 # index 1 = YES
 TASK1_LABELS = ["NO", "YES"]
+
+# =====================
+# TASK 2
+# =====================
+TASK2_LABELS = ["DIRECT", "JUDGEMENTAL", "REPORTED"]
+TASK2_NUM_CLASSES = 3
+
+# =====================
+# TASK 3
+# =====================
+TASK3_LABELS = [
+    "IDEOLOGICAL-INEQUALITY",
+    "STEREOTYPING-DOMINANCE",
+    "OBJECTIFICATION",
+    "SEXUAL-VIOLENCE",
+    "MISOGYNY-NON-SEXUAL-VIOLENCE"
+]
+TASK3_NUM_CLASSES = 5
+
 
 # =====================
 # SYSTEM
@@ -60,3 +79,15 @@ TRAIN_TASK1_GOLD_HARD = "data/evaluation/golds/EXIST2023_training_task1_gold_har
 # =====================
 MODEL_OUTPUT = "outputs/models/"
 PREDICTION_OUTPUT = "outputs/predictions/"
+
+# =====================
+# TASK 2 OUTPUT PATHS
+# =====================
+TASK2_MODEL_OUTPUT = "outputs/models/task2/"
+TASK2_PREDICTION_OUTPUT = "outputs/predictions/task2/"
+
+# =====================
+# TASK 3 OUTPUT PATHS
+# =====================
+TASK3_MODEL_OUTPUT = "outputs/models/task3/"
+TASK3_PREDICTION_OUTPUT = "outputs/predictions/task3/"
