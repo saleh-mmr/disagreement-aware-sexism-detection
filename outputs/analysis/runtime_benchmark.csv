@@ -1,0 +1,3 @@
+model_name,device,num_examples,batch_size,max_len,total_parameters,trainable_parameters,checkpoint_path,checkpoint_size_mb,total_inference_time_seconds,average_time_per_example_seconds,examples_per_second
+xlm-roberta-base,cpu,1038,8,128,278046722,278046722,outputs/models/xlm-roberta-base_soft.pt,1060.7435903549194,58.61658787727356,0.05647070123051403,17.708297899790352
+bert-base-multilingual-cased,cpu,1038,8,128,177856514,177856514,outputs/models/bert-base-multilingual-cased_soft.pt,678.5507688522339,52.58845496177673,0.05066325140826275,19.738172584732855
